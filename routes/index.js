@@ -1,13 +1,13 @@
-var express = require('express');
-const userModel = require("./users");
-const multer =require('multer');
+var express = require('express');      //importing express
+const userModel = require("./users");     //importing /users for database connection
+const multer =require('multer');          //multer for images
 const fs =require('fs');
 
 
 var router = express.Router();
 
 
-var storage = multer.diskStorage({
+var storage = multer.diskStorage({                                          //file naming module
   destination: function(req, file, cb){
     cb(null, "./uploads");
   
@@ -19,14 +19,14 @@ var storage = multer.diskStorage({
 
 
 var upload = multer({
-  storage: storage,
+  storage: storage,                                                 //storage module
 }).single("image");
 
 
 
-router.post('/add', upload, async (req, res) => {
+router.post('/add', upload, async (req, res) => {                //adding user module from the form
   const user = new userModel({
-    name: req.body.name,
+    name: req.body.name,                                         
     email: req.body.email,
     phone: req.body.phone,
     image: req.file.filename
@@ -45,7 +45,7 @@ router.post('/add', upload, async (req, res) => {
 });
 
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res) => {                                   // index page (home-page)
   try {
     const users = await userModel.find();
     res.render('index', { title: "CRUD Application", users: users, });
@@ -54,8 +54,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/add', function(req,res){
-  res.render('add_users', {title: "Add Users"});
+router.get('/add', function(req,res){                             
+  res.render('add_users', {title: "Add Users"});                  //redirecting to add user page 
 });
 
 
@@ -63,7 +63,7 @@ router.get('/add', function(req,res){
 router.get('/edit/:id', async (req, res) => {
   const id = req.params.id;
   try {
-    const user = await userModel.findById(id);
+    const user = await userModel.findById(id);                  //Module redirecting to edit page with finding the id 
     if (!user) {
       res.redirect("/");
     } else {
@@ -76,7 +76,7 @@ router.get('/edit/:id', async (req, res) => {
 
 
 
-router.post('/update/:id', upload, (req, res) => {
+router.post('/update/:id', upload, (req, res) => {            //Update user module from the form
   let id = req.params.id;
   let new_image = "";
   if(req.file){
@@ -89,7 +89,7 @@ router.post('/update/:id', upload, (req, res) => {
   } else {
     new_image = req.body.old_image;
   }
-  userModel.findByIdAndUpdate(id, {
+  userModel.findByIdAndUpdate(id, {                   //Update the user module if given any by user
     name: req.body.name,
     email: req.body.email,
     phone: req.body.phone,
@@ -108,12 +108,9 @@ router.post('/update/:id', upload, (req, res) => {
   });
 });
 
-router.get('/add', function(req,res){
-  res.render('add_users', {title: "Add Users"});
-});
 
 
-router.get('/delete/:id', async (req, res) => {
+router.get('/delete/:id', async (req, res) => {           //Module to delete the user
   let id = req.params.id;
   try {
     const result = await userModel.findByIdAndDelete(id);
@@ -130,5 +127,8 @@ router.get('/delete/:id', async (req, res) => {
     res.json({ message: err.message });
   }
 });
+
+
+
 
 module.exports = router;
